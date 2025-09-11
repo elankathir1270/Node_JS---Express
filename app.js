@@ -1,11 +1,28 @@
 //Import package
 const express = require("express"); //returns function
 const fs = require("fs");
+const morgan = require("morgan");
 
 const app = express(); //returns object
 const movies = JSON.parse(fs.readFileSync("./data/movies.json"));
 
-app.use(express.json()); //middleware
+//creating custom middleware
+const logger = function (req, res, next) {
+  // structure of middleware function
+  console.log("custom middleware function is called");
+  next(); //logger function will not be executed unless next() function is called.
+};
+
+app.use(express.json()); //middleware //returns middleware function
+app.use(logger); // already in middleware function format so we didn't use'()'
+app.use(morgan("dev"));
+
+//another way creating custom middleware
+app.use((req, res, next) => {
+  //creating req property 'requestedAt'
+  req.requestedAt = new Date().toISOString();
+  next();
+});
 
 //Route = Http Req + URL
 // app.get("/", (req, res) => {
@@ -13,11 +30,11 @@ app.use(express.json()); //middleware
 //   res.status(200).json({ message: "Hello world", status: 200 }); //for json by default content type-application/json
 // });
 
-//Route Handler
 const getMovies = (req, res) => {
   res.status(200).json({
     status: "success",
     count: movies.length,
+    requestedAt: req.requestedAt,
     data: {
       movies: movies,
     },
@@ -144,6 +161,7 @@ const deleteMovie = (req, res) => {
 // //DELETE - api/v1/movies/:id
 // app.delete("/api/v1/movies/:id", deleteMovie);
 
+//Route Handler
 app.route("/api/v1/movies").get(getMovies).post(addMovie);
 
 app
