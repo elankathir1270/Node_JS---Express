@@ -1,6 +1,7 @@
 const dotenv = require("dotenv"); //install dotenv
 dotenv.config({ path: "./config.env" }); //set user defined env variables to environment
 
+const mongoose = require("mongoose");
 const app = require("./app");
 
 //console.log(process.env);

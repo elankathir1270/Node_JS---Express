@@ -2,7 +2,7 @@ const express = require("express");
 const moviesController = require("../controller/moviesController");
 
 const router = express.Router(); //moviesRouter act as a middleware
-router.param("id", moviesController.checkId); //param middleware
+//router.param("id", moviesController.checkId); //param middleware
 
 router
   .route("/")

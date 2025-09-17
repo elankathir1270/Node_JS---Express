@@ -1,5 +1,22 @@
 const Movie = require("./../models/movieModel");
 
+exports.validateBody = (req, res, next) => {
+  if (!req.body?.name || !req.body?.year) {
+    return res.status(400).json({
+      status: "fail",
+      message: "Not a valid movie",
+    });
+  }
+
+  next();
+};
+
+exports.getMovies = (req, res) => {};
+exports.getMovie = (req, res) => {};
+exports.addMovie = (req, res) => {};
+exports.updateMovie = (req, res) => {};
+exports.deleteMovie = (req, res) => {};
+
 //+++++++++++This Logic is for work with local DATA++++++++++++
 // const fs = require("fs");
 // const movies = JSON.parse(fs.readFileSync("./data/movies.json"));
