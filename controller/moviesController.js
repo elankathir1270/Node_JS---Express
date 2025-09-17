@@ -1,153 +1,156 @@
-const fs = require("fs");
-const movies = JSON.parse(fs.readFileSync("./data/movies.json"));
+const Movie = require("./../models/movieModel");
 
-exports.checkId = (req, res, next, value) => {
-  console.log("movie id is" + value);
+//+++++++++++This Logic is for work with local DATA++++++++++++
+// const fs = require("fs");
+// const movies = JSON.parse(fs.readFileSync("./data/movies.json"));
 
-  const movie = movies.find((el) => el.id === value * 1);
+// exports.checkId = (req, res, next, value) => {
+//   console.log("movie id is" + value);
 
-  if (!movie) {
-    return res.status(404).json({
-      status: "fail",
-      data: {
-        movie: `Movie with ID ${value} is not found`,
-      },
-    });
-  }
+//   const movie = movies.find((el) => el.id === value * 1);
 
-  next();
-};
+//   if (!movie) {
+//     return res.status(404).json({
+//       status: "fail",
+//       data: {
+//         movie: `Movie with ID ${value} is not found`,
+//       },
+//     });
+//   }
 
-exports.validateBody = (req, res, next) => {
-  if (!req.body?.name || !req.body?.year) {
-    return res.status(400).json({
-      status: "fail",
-      message: "Not a valid movie",
-    });
-  }
+//   next();
+// };
 
-  next();
-};
+// exports.validateBody = (req, res, next) => {
+//   if (!req.body?.name || !req.body?.year) {
+//     return res.status(400).json({
+//       status: "fail",
+//       message: "Not a valid movie",
+//     });
+//   }
 
-//Route handler
-//Route = Http Req + URL
-// app.get("/", (req, res) => {
-//   // res.status(200).send("<h2>Hello from Express server</h2>"); //by default content type-text/html
-//   res.status(200).json({ message: "Hello world", status: 200 }); //for json by default content type-application/json
-// });
+//   next();
+// };
 
-exports.getMovies = (req, res) => {
-  res.status(200).json({
-    status: "success",
-    count: movies.length,
-    requestedAt: req.requestedAt,
-    data: {
-      movies: movies,
-    },
-  });
-};
+// //Route handler
+// //Route = Http Req + URL
+// // app.get("/", (req, res) => {
+// //   // res.status(200).send("<h2>Hello from Express server</h2>"); //by default content type-text/html
+// //   res.status(200).json({ message: "Hello world", status: 200 }); //for json by default content type-application/json
+// // });
 
-exports.getMovie = (req, res) => {
-  /* ex: "/api/v1/movies/:id/:name/:x" like this we can specify how many parameters we want  
-      but client(postman or any other) has to set values for provided parameters ex: "/api/v1/movies/9/srk/12"
-      to make parameter optional ex: "/api/v1/movies/:id/:name?/:x?" now client no need to set values for 'id and x'.
-      */
-  //console.log(req.params);
+// exports.getMovies = (req, res) => {
+//   res.status(200).json({
+//     status: "success",
+//     count: movies.length,
+//     requestedAt: req.requestedAt,
+//     data: {
+//       movies: movies,
+//     },
+//   });
+// };
 
-  //convert ID into number type
-  const id = req.params.id * 1;
-  //find movie based on parameter
-  const movie = movies.find((el) => el.id === id);
+// exports.getMovie = (req, res) => {
+//   /* ex: "/api/v1/movies/:id/:name/:x" like this we can specify how many parameters we want
+//       but client(postman or any other) has to set values for provided parameters ex: "/api/v1/movies/9/srk/12"
+//       to make parameter optional ex: "/api/v1/movies/:id/:name?/:x?" now client no need to set values for 'id and x'.
+//       */
+//   //console.log(req.params);
 
-  //   if (!movie) {
-  //     return res.status(404).json({
-  //       status: "fail",
-  //       data: {
-  //         movie: `Movie with ID ${id} is not found`,
-  //       },
-  //     });
-  //   }
+//   //convert ID into number type
+//   const id = req.params.id * 1;
+//   //find movie based on parameter
+//   const movie = movies.find((el) => el.id === id);
 
-  //send movie in response
-  res.status(200).json({
-    status: "success",
-    data: {
-      movie: movie,
-    },
-  });
-};
+//   //   if (!movie) {
+//   //     return res.status(404).json({
+//   //       status: "fail",
+//   //       data: {
+//   //         movie: `Movie with ID ${id} is not found`,
+//   //       },
+//   //     });
+//   //   }
 
-exports.addMovie = (req, res) => {
-  //console.log(req.body);
-  //add new Id to req.body
-  const newId = movies[movies.length - 1].id + 1;
+//   //send movie in response
+//   res.status(200).json({
+//     status: "success",
+//     data: {
+//       movie: movie,
+//     },
+//   });
+// };
 
-  //create new movie object
-  const newMovie = Object.assign({ id: newId }, req.body);
-  movies.push(newMovie);
+// exports.addMovie = (req, res) => {
+//   //console.log(req.body);
+//   //add new Id to req.body
+//   const newId = movies[movies.length - 1].id + 1;
 
-  fs.writeFile("./data/movies.json", JSON.stringify(movies), (err) => {
-    res.status(201).json({
-      status: "success",
-      data: {
-        movie: newMovie,
-      },
-    });
-  });
-};
+//   //create new movie object
+//   const newMovie = Object.assign({ id: newId }, req.body);
+//   movies.push(newMovie);
 
-exports.updateMovie = (req, res) => {
-  //convert ID into number type
-  const id = req.params.id * 1;
+//   fs.writeFile("./data/movies.json", JSON.stringify(movies), (err) => {
+//     res.status(201).json({
+//       status: "success",
+//       data: {
+//         movie: newMovie,
+//       },
+//     });
+//   });
+// };
 
-  //find movie
-  let movieToUpdate = movies.find((el) => el.id === id);
+// exports.updateMovie = (req, res) => {
+//   //convert ID into number type
+//   const id = req.params.id * 1;
 
-  //   if (!movieToUpdate) {
-  //     return res.status(404).json({
-  //       status: "fail",
-  //       data: {
-  //         movie: `Movie with ID ${id} is not found`,
-  //       },
-  //     });
-  //   }
+//   //find movie
+//   let movieToUpdate = movies.find((el) => el.id === id);
 
-  //update movie
-  Object.assign(movieToUpdate, req.body);
-  let index = movies.indexOf(movieToUpdate);
+//   //   if (!movieToUpdate) {
+//   //     return res.status(404).json({
+//   //       status: "fail",
+//   //       data: {
+//   //         movie: `Movie with ID ${id} is not found`,
+//   //       },
+//   //     });
+//   //   }
 
-  movies[index] = movieToUpdate;
-  fs.writeFile("./data/movies.json", JSON.stringify(movies), (err) => {
-    res.status(200).json({
-      status: "success",
-      data: {
-        movie: movieToUpdate,
-      },
-    });
-  });
-};
+//   //update movie
+//   Object.assign(movieToUpdate, req.body);
+//   let index = movies.indexOf(movieToUpdate);
 
-exports.deleteMovie = (req, res) => {
-  const id = req.params.id * 1;
-  const movieToDelete = movies.find((el) => el.id === id);
+//   movies[index] = movieToUpdate;
+//   fs.writeFile("./data/movies.json", JSON.stringify(movies), (err) => {
+//     res.status(200).json({
+//       status: "success",
+//       data: {
+//         movie: movieToUpdate,
+//       },
+//     });
+//   });
+// };
 
-  //   if (!movieToDelete) {
-  //     return res.status(404).json({
-  //       status: "fail",
-  //       data: {
-  //         movie: `Movie with ID ${id} is not found`,
-  //       },
-  //     });
-  //   }
+// exports.deleteMovie = (req, res) => {
+//   const id = req.params.id * 1;
+//   const movieToDelete = movies.find((el) => el.id === id);
 
-  const index = movies.indexOf(movieToDelete);
+//   //   if (!movieToDelete) {
+//   //     return res.status(404).json({
+//   //       status: "fail",
+//   //       data: {
+//   //         movie: `Movie with ID ${id} is not found`,
+//   //       },
+//   //     });
+//   //   }
 
-  movies.splice(index, 1);
+//   const index = movies.indexOf(movieToDelete);
 
-  fs.writeFile("./data/movies.json", JSON.stringify(movies), (err) => {
-    res.status(204).json({
-      status: "success",
-      data: null,
-    });
-  });
-};
+//   movies.splice(index, 1);
+
+//   fs.writeFile("./data/movies.json", JSON.stringify(movies), (err) => {
+//     res.status(204).json({
+//       status: "success",
+//       data: null,
+//     });
+//   });
+// };
