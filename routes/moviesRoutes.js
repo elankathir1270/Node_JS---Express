@@ -7,7 +7,7 @@ const router = express.Router(); //moviesRouter act as a middleware
 router
   .route("/")
   .get(moviesController.getMovies)
-  .post(moviesController.validateBody, moviesController.addMovie);
+  .post(moviesController.addMovie);
 
 router
   .route("/:id")

@@ -1,1 +1,77 @@
-[{"id":1,"name":"Endhiran","year":2010,"duration":"3Hrs","verdict":"Blockbuster"},{"id":2,"name":"Jailer","year":2023,"duration":"2hrs 45Mins","verdict":"Blockbuster"},{"id":3,"name":"2.O","year":2018,"duration":"3 Hrs","verdict":"Blockbuster"},{"id":4,"name":"Coolie","year":2025,"duration":"2Hrs 50Mins","verdict":"SuperHit"},{"id":6,"name":"robot","year":2010,"duration":"3Hrs","verdict":"Blockbuster"}]
+[
+  {
+    "name": "Endhiran",
+    "description": "A brilliant scientist creates an android robot with human emotions, leading to unexpected consequences.",
+    "duration": 155,
+    "ratings": 4.5,
+    "totalRatings": 120000,
+    "releaseYear": 2010,
+    "releaseDate": "2010-10-01T00:00:00.000Z",
+    "createdAt": "2025-09-18T00:00:00.000Z",
+    "genres": ["Science Fiction", "Action", "Drama"],
+    "directors": ["S. Shankar"],
+    "actors": ["Rajinikanth", "Aishwarya Rai Bachchan", "Danny Denzongpa"],
+    "coverImage": "endhiran.jpg",
+    "price": 299
+  },
+  {
+    "name": "Jailer",
+    "description": "A retired jailer sets out to rescue his kidnapped son, unleashing his dark past in the process.",
+    "duration": 168,
+    "ratings": 4.7,
+    "totalRatings": 85000,
+    "releaseYear": 2023,
+    "releaseDate": "2023-08-10T00:00:00.000Z",
+    "createdAt": "2025-09-18T00:00:00.000Z",
+    "genres": ["Action", "Thriller", "Drama"],
+    "directors": ["Nelson Dilipkumar"],
+    "actors": ["Rajinikanth", "Mohanlal", "Jackie Shroff"],
+    "coverImage": "jailer.jpg",
+    "price": 349
+  },
+  {
+    "name": "2.0",
+    "description": "A scientist and his android robot must save the world from a powerful entity threatening humanity.",
+    "duration": 152,
+    "ratings": 4.6,
+    "totalRatings": 95000,
+    "releaseYear": 2018,
+    "releaseDate": "2018-11-29T00:00:00.000Z",
+    "createdAt": "2025-09-18T00:00:00.000Z",
+    "genres": ["Science Fiction", "Action", "Thriller"],
+    "directors": ["S. Shankar"],
+    "actors": ["Rajinikanth", "Akshay Kumar", "Amy Jackson"],
+    "coverImage": "2.0.jpg",
+    "price": 399
+  },
+  {
+    "name": "Vikram",
+    "description": "A special agent sets out to track down masked vigilantes while uncovering a deeper conspiracy.",
+    "duration": 175,
+    "ratings": 4.8,
+    "totalRatings": 130000,
+    "releaseYear": 2022,
+    "releaseDate": "2022-06-03T00:00:00.000Z",
+    "createdAt": "2025-09-18T00:00:00.000Z",
+    "genres": ["Action", "Thriller", "Crime"],
+    "directors": ["Lokesh Kanagaraj"],
+    "actors": ["Kamal Haasan", "Vijay Sethupathi", "Fahadh Faasil"],
+    "coverImage": "vikram.jpg",
+    "price": 349
+  },
+  {
+    "name": "Padayappa",
+    "description": "An engineer faces challenges from a vengeful woman as he rises to prominence in his village.",
+    "duration": 181,
+    "ratings": 4.4,
+    "totalRatings": 78000,
+    "releaseYear": 1999,
+    "releaseDate": "1999-04-10T00:00:00.000Z",
+    "createdAt": "2025-09-18T00:00:00.000Z",
+    "genres": ["Drama", "Action", "Family"],
+    "directors": ["K. S. Ravikumar"],
+    "actors": ["Rajinikanth", "Soundarya", "Ramya Krishnan"],
+    "coverImage": "padayappa.jpg",
+    "price": 299
+  }
+]

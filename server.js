@@ -21,3 +21,9 @@ const port = process.env.PORT || 3000; //accessing environment variables
 app.listen(port, () => {
   console.log("Server has started");
 });
+
+//const port = process.env.PORT || 3000;
+
+//app.listen(port, "10.3.1.143", () => {
+//  console.log(`Server has started on http://10.3.1.143:${port}`);
+//});
