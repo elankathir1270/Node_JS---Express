@@ -1,21 +1,94 @@
 const Movie = require("./../models/movieModel");
 
-exports.validateBody = (req, res, next) => {
-  if (!req.body?.name || !req.body?.year) {
-    return res.status(400).json({
+exports.getMovies = async (req, res) => {
+  try {
+    const movies = await Movie.find();
+
+    res.status(200).json({
+      status: "success",
+      length: movies.length,
+      data: {
+        movies,
+      },
+    });
+  } catch (error) {
+    res.status(404).json({
       status: "fail",
-      message: "Not a valid movie",
+      message: error.message,
     });
   }
-
-  next();
 };
+exports.getMovie = async (req, res) => {
+  try {
+    //const movie = await Movie.find({_id : req.params.id});
+    const movie = await Movie.findById(req.params.id);
 
-exports.getMovies = (req, res) => {};
-exports.getMovie = (req, res) => {};
-exports.addMovie = (req, res) => {};
-exports.updateMovie = (req, res) => {};
-exports.deleteMovie = (req, res) => {};
+    res.status(200).json({
+      status: "success",
+      data: {
+        movie,
+      },
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+};
+exports.addMovie = async (req, res) => {
+  // const movie = new Movie({})
+  // movie.save();
+  //another way
+  try {
+    const movie = await Movie.create(req.body);
+
+    res.status(200).json({
+      status: "success",
+      data: movie,
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+};
+exports.updateMovie = async (req, res) => {
+  try {
+    const updatedMovie = await Movie.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        movie: updatedMovie,
+      },
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+};
+exports.deleteMovie = async (req, res) => {
+  try {
+    await Movie.findByIdAndDelete(req.params.id);
+    res.status(200).json({
+      status: "success",
+      data: null,
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+};
 
 //+++++++++++This Logic is for work with local DATA++++++++++++
 // const fs = require("fs");
