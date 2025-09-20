@@ -1,9 +1,12 @@
 //Import package
 const express = require("express"); //returns function
 const morgan = require("morgan"); // to get request details
+const qs = require("qs");
 const moviesRouter = require("./routes/moviesRoutes");
 
 const app = express(); //returns object
+
+app.set("query parser", (str) => qs.parse(str));
 
 //creating custom middleware
 const logger = function (req, res, next) {

@@ -2,7 +2,35 @@ const Movie = require("./../models/movieModel");
 
 exports.getMovies = async (req, res) => {
   try {
-    const movies = await Movie.find();
+    //console.log(req.query);
+
+    //if need to delete some fields in req.query(useful mongodb below v7)
+    // const excludeFields = ["sort", "page", "limit", "fields"];
+    // const queryObj = { ...req.query };
+
+    // excludeFields.forEach((el) => {
+    //   delete queryObj[el];
+    // });
+
+    let queryStr = JSON.stringify(req.query);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    const queryObj = JSON.parse(queryStr);
+
+    const movies = await Movie.find(queryObj);
+    // find({ //queryObj
+    //   duration: { $gte: 155 },
+    //   ratings: { $gte: 4.5 },
+    //   price: { $lte: 350 },
+    // });
+
+    //another way
+    // const movies = await Movie.find()
+    //   .where("duration")
+    //   .gte(req.query.duration)
+    //   .where("ratings")
+    //   .equals(req.query.ratings);
+    //   .where("price")
+    //   .lte(req.query.ratings);
 
     res.status(200).json({
       status: "success",
