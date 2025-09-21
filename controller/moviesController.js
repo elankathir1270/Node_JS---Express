@@ -5,18 +5,37 @@ exports.getMovies = async (req, res) => {
     //console.log(req.query);
 
     //if need to delete some fields in req.query(useful mongodb below v7)
-    // const excludeFields = ["sort", "page", "limit", "fields"];
-    // const queryObj = { ...req.query };
+    const excludeFields = ["sort", "page", "limit", "fields"];
+    const queryObjCopy = { ...req.query };
 
-    // excludeFields.forEach((el) => {
-    //   delete queryObj[el];
-    // });
+    excludeFields.forEach((el) => {
+      delete queryObjCopy[el];
+    });
 
-    let queryStr = JSON.stringify(req.query);
+    /**
+     * postman request:
+     * http://localhost:3000/api/v1/movies/?duration[gte]=155&ratings[gte]=4.5&price[lte]=300
+     * localhost:3000/api/v1/movies/?sort=-price
+     * localhost:3000/api/v1/movies/?sort=-releaseYear,ratings
+     */
+
+    //Filtering logic
+    let queryStr = JSON.stringify(queryObjCopy);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
     const queryObj = JSON.parse(queryStr);
 
-    const movies = await Movie.find(queryObj);
+    let query = Movie.find(queryObj);
+
+    //Sorting logic (sort is a query function)
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(",").join(" ");
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort("-createdAt");
+    }
+
+    const movies = await query; // silently it is Movie.find().sort()
+
     // find({ //queryObj
     //   duration: { $gte: 155 },
     //   ratings: { $gte: 4.5 },
