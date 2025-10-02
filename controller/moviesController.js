@@ -1,40 +1,97 @@
+const ApiFeatures = require("../utils/apiFeatures");
 const Movie = require("./../models/movieModel");
+
+//Aliasing a route using middleware
+// exports.getHighestRated = (req, res, next) => {
+//   req.query.limit = "2";
+//   req.query.sort = "-ratings";
+//   next();
+// };
+
+/**
+note:
+By default in Express, req.query isn’t a plain mutable object.
+Depending on your query parser setting, it can be a prototype-less object,
+sometimes even treated as immutable. That’s why your earlier assignments (req.query.limit = "2") didn’t stick.
+So..
+*/
+
+//another way
+exports.getHighestRated = (req, res, next) => {
+  Object.defineProperty(req, "query", {
+    value: { ...req.query, sort: "-ratings", limit: "3" },
+    writeable: true,
+  });
+
+  next();
+};
 
 exports.getMovies = async (req, res) => {
   try {
+    const feature = new ApiFeatures(Movie.find(), req.query)
+      .filter()
+      .sort()
+      .limitingFields()
+      .paginate();
+
+    let movies = await feature.query;
     //console.log(req.query);
 
     //if need to delete some fields in req.query(useful mongodb below v7)
-    const excludeFields = ["sort", "page", "limit", "fields"];
-    const queryObjCopy = { ...req.query };
+    // const excludeFields = ["sort", "page", "limit", "fields"];
+    // const queryObjCopy = { ...req.query };
 
-    excludeFields.forEach((el) => {
-      delete queryObjCopy[el];
-    });
+    // excludeFields.forEach((el) => {
+    //   delete queryObjCopy[el];
+    // });
 
     /**
      * postman request:
      * http://localhost:3000/api/v1/movies/?duration[gte]=155&ratings[gte]=4.5&price[lte]=300
      * localhost:3000/api/v1/movies/?sort=-price
      * localhost:3000/api/v1/movies/?sort=-releaseYear,ratings
+     * localhost:3000/api/v1/movies/?fields=name,releaseYear,ratings,price
      */
 
     //Filtering logic
-    let queryStr = JSON.stringify(queryObjCopy);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    const queryObj = JSON.parse(queryStr);
+    // let queryStr = JSON.stringify(queryObjCopy);
+    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    // const queryObj = JSON.parse(queryStr);
 
-    let query = Movie.find(queryObj);
+    // let query = Movie.find(queryObj);
 
     //Sorting logic (sort is a query function)
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(",").join(" ");
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort("-createdAt");
-    }
+    // if (req.query.sort) {
+    //   const sortBy = req.query.sort.split(",").join(" ");
+    //   query = query.sort(sortBy);
+    // } else {
+    //   query = query.sort("-createdAt");
+    // }
 
-    const movies = await query; // silently it is Movie.find().sort()
+    //Limiting fields
+    // if (req.query.fields) {
+    //   const fields = req.query.fields.split(",").join(" ");
+    //   query = query.select(fields);
+    // } else {
+    //   query = query.select("-__v"); // '-' indicates exclude field.
+    // }
+
+    //Pagination
+    // const page = req.query.page * 1;
+    // const limit = req.query.limit * 1;
+
+    // //page 1: 1-10, page 2: 11-20, page 3: 21-30
+    // const skip = (page - 1) * limit;
+    // query = query.skip(skip).limit(limit);
+
+    // if (req.query.page) {
+    //   const moviesCount = await Movie.countDocuments();
+    //   if (skip >= moviesCount) {
+    //     throw new Error("This page is not found");
+    //   }
+    // }
+
+    //const movies = await query; // silently it is Movie.find().sort()
 
     // find({ //queryObj
     //   duration: { $gte: 155 },

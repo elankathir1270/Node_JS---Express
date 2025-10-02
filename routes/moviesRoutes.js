@@ -5,6 +5,10 @@ const router = express.Router(); //moviesRouter act as a middleware
 //router.param("id", moviesController.checkId); //param middleware
 
 router
+  .route("/highest-rated")
+  .get(moviesController.getHighestRated, moviesController.getMovies);
+
+router
   .route("/")
   .get(moviesController.getMovies)
   .post(moviesController.addMovie);
