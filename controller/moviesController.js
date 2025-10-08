@@ -182,7 +182,7 @@ exports.updateMovie = async (req, res) => {
 exports.deleteMovie = async (req, res) => {
   try {
     await Movie.findByIdAndDelete(req.params.id);
-    res.status(200).json({
+    res.status(204).json({
       status: "success",
       data: null,
     });
@@ -194,6 +194,77 @@ exports.deleteMovie = async (req, res) => {
   }
 };
 
+exports.getMovieStats = async (req, res) => {
+  try {
+    const stats = await Movie.aggregate([
+      { $match: { ratings: { $gte: 4.5 } } },
+      {
+        $group: {
+          _id: "$releaseYear",
+          avgRatings: { $avg: "$ratings" },
+          avgPrice: { $avg: "$price" },
+          maxPrice: { $max: "$price" },
+          minPrice: { $min: "$price" },
+          priceTotal: { $sum: "$price" },
+          movieCount: { $sum: 1 },
+        },
+      },
+      { $sort: { minPrice: 1 } }, //1-asc,-1-dsc
+      { $match: { maxPrice: { $gte: 350 } } },
+    ]);
+
+    /**
+     * based on '$match' stage result, '$group' stage will do its work then
+     * based on '$group' stage result '$sort' will do its work.
+     * in short one stag result is input to another stage.
+     */
+
+    res.status(200).json({
+      status: "success",
+      count: stats.length,
+      data: { stats },
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+};
+
+//url: localhost:3000/api/v1/movies/movies-by-genre/Romance
+
+exports.getMovieByGenre = async (req, res) => {
+  try {
+    const genre = req.params.genre;
+    const movies = await Movie.aggregate([
+      { $unwind: "$genres" },
+      {
+        $group: {
+          _id: "$genres",
+          movieCount: { $sum: 1 },
+          movies: { $push: "$name" }, //here $sum and $push are aggregate operators.
+        },
+      },
+      { $addFields: { genre: "$_id" } },
+      { $project: { _id: 0 } }, //fields which we want "1", dont "0"
+      { $sort: { movieCount: -1 } },
+      //{$limit : 6},
+      { $match: { genre: genre } },
+    ]);
+
+    res.status(200).json({
+      status: "success",
+      count: movies.length,
+      data: { movies },
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+};
 //+++++++++++This Logic is for work with local DATA++++++++++++
 // const fs = require("fs");
 // const movies = JSON.parse(fs.readFileSync("./data/movies.json"));
