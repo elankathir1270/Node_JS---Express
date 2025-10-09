@@ -1,0 +1,4 @@
+A new movie document with name RRR has been created by SRK 
+A new movie document with name RRR has been created by SRK 
+Query took 37 milliseconds to fetch the docs 
+Query took 111 milliseconds to fetch the docs 
