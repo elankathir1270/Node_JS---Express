@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const fs = require("fs");
+const validator = require("validator");
 
 const movieSchema = new mongoose.Schema(
   {
@@ -11,6 +12,7 @@ const movieSchema = new mongoose.Schema(
       minlength: [3, "Movie name must have at least 3 characters"],
       //maxlength,minlength data validation only applicable for string data type
       trim: true,
+      validate: [validator.isAlpha, "Name should only contain alphabets."],
     },
     description: {
       type: String,
@@ -25,9 +27,19 @@ const movieSchema = new mongoose.Schema(
     ratings: {
       type: Number,
       //default: 1.0,
-      min: [1, "Rating must be 1.0 or above"],
-      max: [5, "Rating must be 5.0 or below"],
+      validate: {
+        validator: function (value) {
+          return value >= 1 && value <= 5;
+        },
+        message: "Ratings ({VALUE}) should be above 1 and below 5",
+      },
+      //min: [1, "Rating must be 1.0 or above"],
+      //max: [5, "Rating must be 5.0 or below"],
       //max,min data validation only applicable for number and date, data type
+
+      /**
+       note: use validator.js library to get custom validator (npm i validator)
+       */
     },
     totalRatings: {
       type: Number,
