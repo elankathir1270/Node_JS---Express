@@ -7,6 +7,9 @@ const movieSchema = new mongoose.Schema(
       type: String,
       required: [true, "Name is required field"],
       unique: true,
+      maxlength: [50, "Movie name must not have more than 50 character"],
+      minlength: [3, "Movie name must have at least 3 characters"],
+      //maxlength,minlength data validation only applicable for string data type
       trim: true,
     },
     description: {
@@ -22,6 +25,9 @@ const movieSchema = new mongoose.Schema(
     ratings: {
       type: Number,
       //default: 1.0,
+      min: [1, "Rating must be 1.0 or above"],
+      max: [5, "Rating must be 5.0 or below"],
+      //max,min data validation only applicable for number and date, data type
     },
     totalRatings: {
       type: Number,
@@ -41,6 +47,22 @@ const movieSchema = new mongoose.Schema(
     genres: {
       type: [String],
       required: [true, "Genres is required field"],
+      enum: {
+        values: [
+          "Action",
+          "Romance",
+          "Mystery",
+          "Family",
+          "Fantasy",
+          "Science Fiction",
+          "Crime",
+          "Thriller",
+          "Drama",
+          "Comedy",
+          "Historical",
+        ],
+        message: "This genre does not exist",
+      },
     },
     directors: {
       type: [String],
