@@ -3,6 +3,8 @@ const express = require("express"); //returns function
 const morgan = require("morgan"); // to get request details
 const qs = require("qs");
 const moviesRouter = require("./routes/moviesRoutes");
+const CustomError = require("./utils/customError");
+const globalErrorHandler = require("./controller/errorController");
 
 const app = express(); //returns object
 
@@ -45,6 +47,40 @@ app.use((req, res, next) => {
 // app.delete("/api/v1/movies/:id", deleteMovie);
 
 //note: usually middleware will apply to all the request but when we define path like this that will be applicable only to that path
-app.use("/api/v1/movies/", moviesRouter);
+app.use("/api/v1/movies", moviesRouter);
+
+//Default route
+// app.all("*", (req, res) => {
+//   res.status(404).json({
+//     status: "fail",
+//     message: `Can't find ${req.originalUrl} on this server!`,
+//   });
+// });
+
+//Default route for current version of Express(5.1.0)
+app.use((req, res, next) => {
+  // res.status(404).json({
+  //   status: "fail",
+  //   message: `Can't find ${req.originalUrl} on this server!`,
+  // });
+
+  // const err = new Error(`Can't find ${req.originalUrl} on this server!`);
+  // err.status = "fail";
+  // err.statusCode = 404;
+
+  const err = new CustomError(
+    `Can't find ${req.originalUrl} on this server!`,
+    404
+  );
+
+  next(err);
+  /**
+   * when we pass argument to next() express will automatically assume some error happened 
+    so, it directly calls Global error handling middleware function, skips any other actions those are in middleware stack.
+   */
+});
+
+//Global error handling middleware
+app.use(globalErrorHandler);
 
 module.exports = app;
