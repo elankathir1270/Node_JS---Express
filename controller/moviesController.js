@@ -1,5 +1,7 @@
 const ApiFeatures = require("../utils/apiFeatures");
+const CustomError = require("../utils/customError");
 const Movie = require("./../models/movieModel");
+const asyncErrorHandler = require("./../utils/asyncErrorHandler"); //using this remove try catch blocks
 
 //Aliasing a route using middleware
 // exports.getHighestRated = (req, res, next) => {
@@ -26,211 +28,189 @@ exports.getHighestRated = (req, res, next) => {
   next();
 };
 
-exports.getMovies = async (req, res) => {
-  try {
-    const feature = new ApiFeatures(Movie.find(), req.query)
-      .filter()
-      .sort()
-      .limitingFields()
-      .paginate();
+exports.getMovies = asyncErrorHandler(async (req, res, next) => {
+  const feature = new ApiFeatures(Movie.find(), req.query)
+    .filter()
+    .sort()
+    .limitingFields()
+    .paginate();
 
-    let movies = await feature.query;
-    //console.log(req.query);
+  let movies = await feature.query;
+  //console.log(req.query);
 
-    //if need to delete some fields in req.query(useful mongodb below v7)
-    // const excludeFields = ["sort", "page", "limit", "fields"];
-    // const queryObjCopy = { ...req.query };
+  //if need to delete some fields in req.query(useful mongodb below v7)
+  // const excludeFields = ["sort", "page", "limit", "fields"];
+  // const queryObjCopy = { ...req.query };
 
-    // excludeFields.forEach((el) => {
-    //   delete queryObjCopy[el];
-    // });
+  // excludeFields.forEach((el) => {
+  //   delete queryObjCopy[el];
+  // });
 
-    /**
-     * postman request:
-     * http://localhost:3000/api/v1/movies/?duration[gte]=155&ratings[gte]=4.5&price[lte]=300
-     * localhost:3000/api/v1/movies/?sort=-price
-     * localhost:3000/api/v1/movies/?sort=-releaseYear,ratings
-     * localhost:3000/api/v1/movies/?fields=name,releaseYear,ratings,price
-     */
+  /**
+   * postman request:
+   * http://localhost:3000/api/v1/movies/?duration[gte]=155&ratings[gte]=4.5&price[lte]=300
+   * localhost:3000/api/v1/movies/?sort=-price
+   * localhost:3000/api/v1/movies/?sort=-releaseYear,ratings
+   * localhost:3000/api/v1/movies/?fields=name,releaseYear,ratings,price
+   */
 
-    //Filtering logic
-    // let queryStr = JSON.stringify(queryObjCopy);
-    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    // const queryObj = JSON.parse(queryStr);
+  //Filtering logic
+  // let queryStr = JSON.stringify(queryObjCopy);
+  // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+  // const queryObj = JSON.parse(queryStr);
 
-    // let query = Movie.find(queryObj);
+  // let query = Movie.find(queryObj);
 
-    //Sorting logic (sort is a query function)
-    // if (req.query.sort) {
-    //   const sortBy = req.query.sort.split(",").join(" ");
-    //   query = query.sort(sortBy);
-    // } else {
-    //   query = query.sort("-createdAt");
-    // }
+  //Sorting logic (sort is a query function)
+  // if (req.query.sort) {
+  //   const sortBy = req.query.sort.split(",").join(" ");
+  //   query = query.sort(sortBy);
+  // } else {
+  //   query = query.sort("-createdAt");
+  // }
 
-    //Limiting fields
-    // if (req.query.fields) {
-    //   const fields = req.query.fields.split(",").join(" ");
-    //   query = query.select(fields);
-    // } else {
-    //   query = query.select("-__v"); // '-' indicates exclude field.
-    // }
+  //Limiting fields
+  // if (req.query.fields) {
+  //   const fields = req.query.fields.split(",").join(" ");
+  //   query = query.select(fields);
+  // } else {
+  //   query = query.select("-__v"); // '-' indicates exclude field.
+  // }
 
-    //Pagination
-    // const page = req.query.page * 1;
-    // const limit = req.query.limit * 1;
+  //Pagination
+  // const page = req.query.page * 1;
+  // const limit = req.query.limit * 1;
 
-    // //page 1: 1-10, page 2: 11-20, page 3: 21-30
-    // const skip = (page - 1) * limit;
-    // query = query.skip(skip).limit(limit);
+  // //page 1: 1-10, page 2: 11-20, page 3: 21-30
+  // const skip = (page - 1) * limit;
+  // query = query.skip(skip).limit(limit);
 
-    // if (req.query.page) {
-    //   const moviesCount = await Movie.countDocuments();
-    //   if (skip >= moviesCount) {
-    //     throw new Error("This page is not found");
-    //   }
-    // }
+  // if (req.query.page) {
+  //   const moviesCount = await Movie.countDocuments();
+  //   if (skip >= moviesCount) {
+  //     throw new Error("This page is not found");
+  //   }
+  // }
 
-    //const movies = await query; // silently it is Movie.find().sort()
+  //const movies = await query; // silently it is Movie.find().sort()
 
-    // find({ //queryObj
-    //   duration: { $gte: 155 },
-    //   ratings: { $gte: 4.5 },
-    //   price: { $lte: 350 },
-    // });
+  // find({ //queryObj
+  //   duration: { $gte: 155 },
+  //   ratings: { $gte: 4.5 },
+  //   price: { $lte: 350 },
+  // });
 
-    //another way
-    // const movies = await Movie.find()
-    //   .where("duration")
-    //   .gte(req.query.duration)
-    //   .where("ratings")
-    //   .equals(req.query.ratings);
-    //   .where("price")
-    //   .lte(req.query.ratings);
+  //another way
+  // const movies = await Movie.find()
+  //   .where("duration")
+  //   .gte(req.query.duration)
+  //   .where("ratings")
+  //   .equals(req.query.ratings);
+  //   .where("price")
+  //   .lte(req.query.ratings);
 
-    res.status(200).json({
-      status: "success",
-      length: movies.length,
-      data: {
-        movies,
-      },
-    });
-  } catch (error) {
-    res.status(404).json({
-      status: "fail",
-      message: error.message,
-    });
+  res.status(200).json({
+    status: "success",
+    length: movies.length,
+    data: {
+      movies,
+    },
+  });
+});
+exports.getMovie = asyncErrorHandler(async (req, res, next) => {
+  //const movie = await Movie.find({_id : req.params.id});
+  const movie = await Movie.findById(req.params.id);
+
+  //handling no found error
+  if (!movie) {
+    const error = new CustomError("Movie with that Id is not found", 404);
+    return next(error);
   }
-};
-exports.getMovie = async (req, res) => {
-  try {
-    //const movie = await Movie.find({_id : req.params.id});
-    const movie = await Movie.findById(req.params.id);
 
-    res.status(200).json({
-      status: "success",
-      data: {
-        movie,
-      },
-    });
-  } catch (error) {
-    res.status(404).json({
-      status: "fail",
-      message: error.message,
-    });
-  }
-};
-exports.addMovie = async (req, res) => {
+  res.status(200).json({
+    status: "success",
+    data: {
+      movie,
+    },
+  });
+});
+
+exports.addMovie = asyncErrorHandler(async (req, res, next) => {
   // const movie = new Movie({})
   // movie.save();
   //another way
-  try {
-    const movie = await Movie.create(req.body);
 
-    res.status(200).json({
-      status: "success",
-      data: movie,
-    });
-  } catch (error) {
-    res.status(404).json({
-      status: "fail",
-      message: error.message,
-    });
+  const movie = await Movie.create(req.body);
+
+  res.status(200).json({
+    status: "success",
+    data: movie,
+  });
+});
+
+exports.updateMovie = asyncErrorHandler(async (req, res, next) => {
+  const updatedMovie = await Movie.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  //handling no found error
+  if (!updatedMovie) {
+    const error = new CustomError("Movie with that Id is not found", 404);
+    return next(error);
   }
-};
-exports.updateMovie = async (req, res) => {
-  try {
-    const updatedMovie = await Movie.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
 
-    res.status(200).json({
-      status: "success",
-      data: {
-        movie: updatedMovie,
+  res.status(200).json({
+    status: "success",
+    data: {
+      movie: updatedMovie,
+    },
+  });
+});
+exports.deleteMovie = asyncErrorHandler(async (req, res, next) => {
+  const deletedMovie = await Movie.findByIdAndDelete(req.params.id);
+
+  //handling no found error
+  if (!deletedMovie) {
+    const error = new CustomError("Movie with that Id is not found", 404);
+    return next(error);
+  }
+  res.status(204).json({
+    status: "success",
+    data: null,
+  });
+});
+
+exports.getMovieStats = asyncErrorHandler(async (req, res, next) => {
+  const stats = await Movie.aggregate([
+    { $match: { ratings: { $gte: 4.5 } } },
+    {
+      $group: {
+        _id: "$releaseYear",
+        avgRatings: { $avg: "$ratings" },
+        avgPrice: { $avg: "$price" },
+        maxPrice: { $max: "$price" },
+        minPrice: { $min: "$price" },
+        priceTotal: { $sum: "$price" },
+        movieCount: { $sum: 1 },
       },
-    });
-  } catch (error) {
-    res.status(404).json({
-      status: "fail",
-      message: error.message,
-    });
-  }
-};
-exports.deleteMovie = async (req, res) => {
-  try {
-    await Movie.findByIdAndDelete(req.params.id);
-    res.status(204).json({
-      status: "success",
-      data: null,
-    });
-  } catch (error) {
-    res.status(404).json({
-      status: "fail",
-      message: error.message,
-    });
-  }
-};
+    },
+    { $sort: { minPrice: 1 } }, //1-asc,-1-dsc
+    { $match: { maxPrice: { $gte: 350 } } },
+  ]);
 
-exports.getMovieStats = async (req, res) => {
-  try {
-    const stats = await Movie.aggregate([
-      { $match: { ratings: { $gte: 4.5 } } },
-      {
-        $group: {
-          _id: "$releaseYear",
-          avgRatings: { $avg: "$ratings" },
-          avgPrice: { $avg: "$price" },
-          maxPrice: { $max: "$price" },
-          minPrice: { $min: "$price" },
-          priceTotal: { $sum: "$price" },
-          movieCount: { $sum: 1 },
-        },
-      },
-      { $sort: { minPrice: 1 } }, //1-asc,-1-dsc
-      { $match: { maxPrice: { $gte: 350 } } },
-    ]);
+  /**
+   * based on '$match' stage result, '$group' stage will do its work then
+   * based on '$group' stage result '$sort' will do its work.
+   * in short one stag result is input to another stage.
+   */
 
-    /**
-     * based on '$match' stage result, '$group' stage will do its work then
-     * based on '$group' stage result '$sort' will do its work.
-     * in short one stag result is input to another stage.
-     */
-
-    res.status(200).json({
-      status: "success",
-      count: stats.length,
-      data: { stats },
-    });
-  } catch (error) {
-    res.status(404).json({
-      status: "fail",
-      message: error.message,
-    });
-  }
-};
+  res.status(200).json({
+    status: "success",
+    count: stats.length,
+    data: { stats },
+  });
+});
 
 //url: localhost:3000/api/v1/movies/movies-by-genre/Romance
 
