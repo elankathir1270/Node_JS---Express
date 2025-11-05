@@ -38,9 +38,15 @@ exports.login = asyncErrorHandler(async (req, res, next) => {
   //check if the user is exist with given email
   const user = await User.findOne({ email }).select("+password");
 
-  //const isMatch = await user.comparePasswordInDb(password, user.password);
   //check if the user exist and password matches
-  if (!user || !(await User.findOne({ email }).select("+password"))) {
+  if (!user) {
+    const error = new CustomError("Incorrect password or email", 400);
+    return next(error);
+  }
+
+  const isMatch = await user.comparePasswordInDb(password);
+
+  if (!isMatch) {
     const error = new CustomError("Incorrect password or email", 400);
     return next(error);
   }
@@ -49,6 +55,6 @@ exports.login = asyncErrorHandler(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     token,
-    user,
+    //user,
   });
 });
