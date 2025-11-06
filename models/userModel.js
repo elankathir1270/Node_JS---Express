@@ -32,6 +32,8 @@ const userSchema = new mongoose.Schema({
       message: "Password and Confirm Password does not match",
     },
   },
+  passwordChangedAt: Date,
+  //this property will be available in user document when user change their password, else it will be undefined so property wont be there in doc
 });
 
 userSchema.pre("save", async function (next) {
@@ -45,6 +47,19 @@ userSchema.pre("save", async function (next) {
 
 userSchema.methods.comparePasswordInDb = async function (userPassword) {
   return await bcrypt.compare(userPassword, this.password);
+};
+
+userSchema.methods.isPasswordChanged = async function (jswTimeStamp) {
+  if (this.passwordChangedAt) {
+    const passwordChangedTimeStamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+    console.log(passwordChangedTimeStamp, jswTimeStamp);
+
+    return jswTimeStamp < passwordChangedTimeStamp;
+  }
+  return false;
 };
 
 const User = mongoose.model("User", userSchema);
