@@ -96,6 +96,40 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
   }
 
   //allow the user to access the route//
-  req.user = user;
+  req.user = user; //here we set (req.user) user to req object as a new property intentionally, for some other purposes.
   next();
 });
+
+/**
+  since we cannot pass any arguments other than (req,res,next) in middleware function here we use 
+  a wrapper function to use userRole
+ */
+exports.restrict = (userRole) => {
+  return (req, res, next) => {
+    if (req.user.role !== userRole) {
+      const error = new CustomError(
+        "You don't have permission to perform this action",
+        403 //403 forbidden error, means not permitted to perform this action
+      );
+      next(error);
+    }
+    next();
+  };
+};
+
+/**
+//if we have multiple role to perform some crucial actions(delete) use "Rest parameter"
+exports.restrict = (...userRole) => {
+  //use (...role) "rest" parameter means is has multiple values and ll be an array in this case
+  return (req, res, next) => {
+    if (!userRole.includes(req.user.role)) {
+      const error = new CustomError(
+        "You don't have permission to perform this action",
+        403 //403 forbidden error, means not permitted to perform this action
+      );
+      next(error);
+    }
+    next();
+  };
+};
+ */
