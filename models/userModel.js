@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -15,6 +16,11 @@ const userSchema = new mongoose.Schema({
     validate: [validator.isEmail, "please enter a valid email"],
   },
   photo: String,
+  role: {
+    type: String,
+    enum: ["user", "admin"], //add here if u have many user role "test1","test2"
+    default: "user",
+  },
   password: {
     type: String,
     require: [true, "please enter a password"],
@@ -33,10 +39,13 @@ const userSchema = new mongoose.Schema({
     },
   },
   passwordChangedAt: Date,
-  //this property will be available in user document when user change their password, else it will be undefined so property wont be there in doc
+  //this property will be available in user document when user change their password, else it will be undefined so property wont be there in doc.
+  passwordResetToken: String,
+  passwordResetTokenExpires: Date,
 });
 
 userSchema.pre("save", async function (next) {
+  //unless user modified the password below logic wont execute, to avoid redundant.
   if (!this.isModified("password")) return next();
 
   //encrypt the password before saving it
@@ -60,6 +69,24 @@ userSchema.methods.isPasswordChanged = async function (jswTimeStamp) {
     return jswTimeStamp < passwordChangedTimeStamp;
   }
   return false;
+};
+
+userSchema.methods.createResetpasswordToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex"); //size | type
+  //note: Its not encrypted token, its a plain token to send user
+
+  //encrypt for saving in DB
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  //"sha256" is a algorithm and "hex" format encryption
+
+  //console.log(resetToken, this.passwordResetToken);
+
+  this.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
 };
 
 const User = mongoose.model("User", userSchema);
