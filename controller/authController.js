@@ -13,17 +13,23 @@ const signToken = (id) => {
   });
 };
 
+const createSendResponse = (user, statusCode, res) => {
+  const token = signToken(user._id);
+
+  res.status(statusCode).json({
+    status: "success",
+    token,
+    data: { user: user },
+  });
+};
+
+exports.createSendResponse = createSendResponse;
+
 //router handler
 exports.signup = asyncErrorHandler(async (req, res, next) => {
   const newUser = await User.create(req.body);
 
-  const token = signToken(newUser._id);
-
-  res.status(201).json({
-    status: "success",
-    token,
-    data: { user: newUser },
-  });
+  createSendResponse(newUser, 201, res);
 });
 
 exports.login = asyncErrorHandler(async (req, res, next) => {
@@ -54,12 +60,7 @@ exports.login = asyncErrorHandler(async (req, res, next) => {
     return next(error);
   }
 
-  const token = signToken(user._id);
-  res.status(200).json({
-    status: "success",
-    token,
-    //user,
-  });
+  createSendResponse(user, 200, res);
 });
 
 exports.protect = asyncErrorHandler(async (req, res, next) => {
@@ -78,7 +79,7 @@ exports.protect = asyncErrorHandler(async (req, res, next) => {
   const decodedToken = await util.promisify(jwt.verify)(
     token,
     process.env.SECRET_STR
-  ); //event is async function it wont return promise so we have to promisify
+  ); //event it's a async function it wont return promise so we have to promisify
   //console.log(decodedToken);
 
   //if the user exist//
@@ -209,10 +210,5 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
   user.save(); //this time save with validations
 
   //Login the user
-  const loginToken = signToken(user._id);
-  res.status(200).json({
-    status: "success",
-    token: loginToken,
-    //user,
-  });
+  createSendResponse(user, 200, res);
 });

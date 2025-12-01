@@ -38,6 +38,11 @@ const userSchema = new mongoose.Schema({
       message: "Password and Confirm Password does not match",
     },
   },
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
   passwordChangedAt: Date,
   //this property will be available in user document when user change their password, else it will be undefined so property wont be there in doc.
   passwordResetToken: String,
@@ -51,6 +56,16 @@ userSchema.pre("save", async function (next) {
   //encrypt the password before saving it
   this.password = await bcrypt.hash(this.password, 12);
   this.confirmPassword = undefined;
+  next();
+});
+
+//this function calls when any find query executed
+userSchema.pre(/^find/, async function (next) {
+  //regular function has its own "this" keyword
+  //here "this" key will point to current query which is executing
+  //whenever user calls "getAllUsers" User.find() query
+
+  this.find({ active: { $ne: false } }); //filter active property
   next();
 });
 

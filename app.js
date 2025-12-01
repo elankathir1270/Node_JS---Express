@@ -4,6 +4,7 @@ const morgan = require("morgan"); // to get request details
 const qs = require("qs");
 const moviesRouter = require("./routes/moviesRoutes");
 const authRouter = require("./routes/authRoutes");
+const userRouter = require("./routes/userRoutes");
 const CustomError = require("./utils/customError");
 const globalErrorHandler = require("./controller/errorController");
 
@@ -49,7 +50,8 @@ app.use((req, res, next) => {
 
 //note: usually middleware will apply to all the request but when we define path like this that will be applicable only to that path
 app.use("/api/v1/movies", moviesRouter);
-app.use("/api/v1/users", authRouter);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/user", userRouter);
 
 //Default route
 // app.all("*", (req, res) => {
