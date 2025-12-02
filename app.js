@@ -1,6 +1,7 @@
 //Import package
 const express = require("express"); //returns function
 const morgan = require("morgan"); // to get request details
+const rateLimit = require("express-rate-limit");
 const qs = require("qs");
 const moviesRouter = require("./routes/moviesRoutes");
 const authRouter = require("./routes/authRoutes");
@@ -9,6 +10,15 @@ const CustomError = require("./utils/customError");
 const globalErrorHandler = require("./controller/errorController");
 
 const app = express(); //returns object
+
+const limiter = rateLimit({
+  max: 10, //max requests
+  windowMs: 60 * 60 * 1000, //1 hour
+  message:
+    "We have received too many requests from this IP. please try after one hour",
+}); //middleware //returns middleware function
+
+app.use("/api", limiter); //to all api which has '/api'.
 
 app.set("query parser", (str) => qs.parse(str));
 
